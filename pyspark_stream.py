@@ -18,10 +18,10 @@ stream = spark.readStream.format("socket") \
     .load()
 
 
-query = stream.writeStream.format("csv") \
-  .trigger(processingTime="10 seconds") \
-  .option("checkpointLocation", "checkpoint/") \
-  .option("path", "output_path/") \
-  .outputMode("append") \
-  .start() \
-  .awaitTermination()
+# query = stream.writeStream.format("csv") \
+#   .trigger(processingTime="10 seconds") \
+#   .option("checkpointLocation", "checkpoint/") \
+#   .option("path", "output_path/") \
+#   .outputMode("append") \
+#   .start() \
+#   .awaitTermination()
