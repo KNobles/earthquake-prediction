@@ -3,7 +3,7 @@
 Please follow this steps each time you need to modify the code
 
 **Step 01 Fork**
-* Create a fork from KNobles/earthquake-prediction
+* Create a fork from https://github.com/KNobles/earthquake-prediction
 * Copy the main branch only
 
 ![](resources/15-13-11.png)
