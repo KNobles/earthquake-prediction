@@ -1,0 +1,53 @@
+*venv*
+.venv
+venv/
+venv
+# ----- Versionning -----
+.git
+.gitignore
+.dockerignore
+Dockerfile
+.hokusai-tmp
+
+# ----- Env variables -----
+.env
+.env.*
+
+# ----- Documentation -----
+README.md
+
+# ----- Python -----
+*.py[cod]
+*.egg-info
+*.egg
+*.pyc
+*__pycache__*
+
+
+# ----- OS X -----
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ----- Rails -----
+*.rbc
+capybara-*.html
+log
+tmp
+db/*.sqlite3
+db/*.sqlite3-journal
+public/system
+coverage/
+spec/tmp
+**.orig
+rerun.txt
+test-results
+
+# ----- node.js -----
+node_modules
+
+## ----- Environment normalisation -----
+.bundle
+
+# unless supporting rvm < 1.11.0 or doing something fancy, ignore this:
+.rvmrc
