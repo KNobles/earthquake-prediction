@@ -26,7 +26,7 @@ You will have to repeat this process everytime that you work in a new feature
  
 **Step 03 Create a branch**
 * Create a branch, name it as the feature that you will develop. (i.e. prediction)
-* Select main branch
+* Select **dev branch**
 
 ![](resources/15-15-34.png)
 ![](resources/15-20-20.png)
