@@ -14,14 +14,10 @@ stream = spark.readStream.format("socket") \
     .option("host", HOST) \
     .option("port", PORT) \
     .option("delimiter", "\n") \
-    .option("includeTimestamp", True) \
     .load()
 
-
-# query = stream.writeStream.format("csv") \
-#   .trigger(processingTime="10 seconds") \
-#   .option("checkpointLocation", "checkpoint/") \
-#   .option("path", "output_path/") \
-#   .outputMode("append") \
-#   .start() \
-#   .awaitTermination()
+query = stream.writeStream.format("console") \
+  .option("truncate", False) \
+  .outputMode("append") \
+  .start() \
+  .awaitTermination()

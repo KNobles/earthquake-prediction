@@ -8,7 +8,7 @@ load_dotenv()
 
 bearer_token = os.environ["BEARER_TOKEN"]
 endpoint_get = "https://api.twitter.com/2/tweets/search/stream"
-
+tweet_lookup_endpoint = "https://api.twitter.com/2/tweets/"
 #URL to add rules for tweet search
 endpoint_rules = "https://api.twitter.com/2/tweets/search/stream/rules"
 
@@ -27,7 +27,9 @@ print("Connected by", addr)
 #Body to add into Post request (so this is not "parameter" but "json" part in your Post request)
 query_parameters = {
 "add": [
-    {"value":"earthquake lang:en "}
+    {"value":"earthquake has:geo"},
+    {"value":"#earthquake", "tag": "earthquake"},
+    {"value":"earthquake"} #has:geo -is:retweet
     ]
 }
 
@@ -44,9 +46,7 @@ def connect_to_endpoint(endpoint_url: str, headers: dict, parameters: dict) -> j
     Returns a json with data to show if your custom filter rule is created.
     
     """
-    response = requests.request(
-        "POST", url=endpoint_url, headers=headers, json=parameters
-    )
+    response = requests.post(url=endpoint_url, headers=headers, json=parameters)
     
     return response.json()
 
@@ -67,11 +67,16 @@ def get_tweets(url,headers):
                 pass
             else:
                 json_response = json.loads(line)  #json.loads----->Deserialize fp (a .read()-supporting text file or binary file containing a JSON document) to a Python object using this conversion table.ie json to python object 
-                
-                conn.send(bytes(json_response["data"]["text"] + "\n",'utf-8'))
+                tweet_id = json_response["data"]["id"]
+                params = {'tweet.fields':'geo,lang,withheld', 'expansions':'geo.place_id'}
+                tweet_lookup = requests.get(url=tweet_lookup_endpoint + tweet_id, headers=headers, params=params)
+                tweet_lookup_str = str(tweet_lookup.json()["data"]) + "\n"
+                conn.send(bytes(tweet_lookup_str,'utf-8'))
 
 headers = request_headers(bearer_token)
 
 json_response = connect_to_endpoint(endpoint_rules, headers, query_parameters)
+
+headers = request_headers(bearer_token)
 
 get_tweets(endpoint_get,headers)
