@@ -3,6 +3,7 @@ import json
 import socket
 import requests
 from dotenv import load_dotenv
+from utils.query import query_earthquake_translations
 
 load_dotenv()
 
@@ -25,16 +26,10 @@ conn, addr = local_socket.accept()
 print("Connected by", addr)
 
 #Body to add into Post request (so this is not "parameter" but "json" part in your Post request)
-query_parameters = {
-"add": [
-    {"value":"earthquake"},
-    {"value":"temblor"},
-    {"value":"terremoto"},
-    {"value":"gempabumi"},
-    {"value":"deprem"},
-    {"value":"lindol"}
-    ]
-}
+
+
+query_earthquake_translations()
+
 
 def request_headers(bearer_token: str) -> dict:
     """
