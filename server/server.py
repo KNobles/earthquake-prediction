@@ -28,7 +28,7 @@ print("Connected by", addr)
 #Body to add into Post request (so this is not "parameter" but "json" part in your Post request)
 
 
-query_earthquake_translations()
+query_parameters = query_earthquake_translations()
 
 
 def request_headers(bearer_token: str) -> dict:
