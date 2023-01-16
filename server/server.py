@@ -27,9 +27,12 @@ print("Connected by", addr)
 #Body to add into Post request (so this is not "parameter" but "json" part in your Post request)
 query_parameters = {
 "add": [
-    {"value":"earthquake has:geo"},
-    {"value":"#earthquake", "tag": "earthquake"},
-    {"value":"earthquake"} #has:geo -is:retweet
+    {"value":"earthquake"},
+    {"value":"temblor"},
+    {"value":"terremoto"},
+    {"value":"gempabumi"},
+    {"value":"deprem"},
+    {"value":"lindol"}
     ]
 }
 
@@ -68,7 +71,10 @@ def get_tweets(url,headers):
             else:
                 json_response = json.loads(line)  #json.loads----->Deserialize fp (a .read()-supporting text file or binary file containing a JSON document) to a Python object using this conversion table.ie json to python object 
                 tweet_id = json_response["data"]["id"]
-                params = {'tweet.fields':'geo,lang,withheld', 'expansions':'geo.place_id'}
+                params = {
+                    'tweet.fields':'geo,lang,withheld', 
+                    'expansions':'geo.place_id'
+                    }
                 tweet_lookup = requests.get(url=tweet_lookup_endpoint + tweet_id, headers=headers, params=params)
                 tweet_lookup_str = str(tweet_lookup.json()["data"]) + "\n"
                 conn.send(bytes(tweet_lookup_str,'utf-8'))
