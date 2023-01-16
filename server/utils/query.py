@@ -31,15 +31,3 @@ def query_earthquake_translations():
         }
     return query_parameters
 
-# def query(value:str):
-#     query_parameters = {
-#     "add": [
-#         {"value":"earthquake"},
-#         ]
-#     }
-
-# def query_earthquake_translations():
-#     for key, value in earthquake_translations.items():
-#         query(value)
-
-#     return 
