@@ -83,6 +83,7 @@ def get_tweets(url,headers):
                 
                 data_to_send_str = str(data_to_send) + "\n"
                 print(data_to_send_str)
+                
                 conn.send(bytes(data_to_send_str,'utf-8'))
 
 headers = request_headers(bearer_token)

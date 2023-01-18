@@ -6,3 +6,4 @@ pyspark==3.3.1
 python-dotenv==0.21.0
 requests==2.28.1
 urllib3==1.26.13
+azure-cosmos==4.3.0

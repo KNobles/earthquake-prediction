@@ -12,7 +12,7 @@ key = os.environ["NOSQL_KEY"]
 def connect(endpoint:str, key:str) -> ContainerProxy:
     client = CosmosClient(endpoint, key)
     database_name = "raw_tweets"
-    container_name = "tweets"
+    container_name = "tweets_db"
     partition_key = PartitionKey(path="/id")
     database = client.create_database_if_not_exists(id=database_name)
     container:ContainerProxy = database.create_container_if_not_exists(id=container_name, partition_key=partition_key)
