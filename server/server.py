@@ -3,14 +3,13 @@ import json
 import socket
 import requests
 
-# Load bearer token from .env file
 from dotenv import load_dotenv
-load_dotenv()
-bearer_token = os.environ["BEARER_TOKEN"]
-
-# Load query parameters from utils/query_for_twitter.py
+from utils.query import query_earthquake_translations
 from utils.query_for_twitter import query_for_twitter
 
+load_dotenv()
+
+bearer_token = os.environ["BEARER_TOKEN"]
 endpoint_get = "https://api.twitter.com/2/tweets/search/stream"
 endpoint_rules = "https://api.twitter.com/2/tweets/search/stream/rules"
 
@@ -25,6 +24,8 @@ local_socket.listen(1)
 conn, addr = local_socket.accept()
 print("Connected by", addr)
 
+#Body to add into Post request (so this is not "parameter" but "json" part in your Post request)
+query_parameters = query_earthquake_translations()
 
 def request_headers(bearer_token: str) -> dict:
     """
@@ -54,6 +55,7 @@ def get_tweets(url,headers):
     'expansions':'author_id,geo.place_id',
     'user.fields':'username'
     }
+
     get_response = requests.get(url=url,headers=headers,stream=True, params=params)
 
     if get_response.status_code!=200:
@@ -67,7 +69,6 @@ def get_tweets(url,headers):
                 try:
                     json_response = json.loads(line)
                     
-
                     tweet_id = json_response["data"]["id"]
                     tweet_text = json_response["data"]["text"]
                     tweet_lang = json_response["data"]["lang"]
@@ -86,11 +87,9 @@ def get_tweets(url,headers):
                     print(data_to_send_str)
                     
                     conn.send(bytes(data_to_send_str,'utf-8'))
-                except:
-                    print("Error")
+                except Exception as e:
+                    print(e)
 
 headers = request_headers(bearer_token)
-
 json_response = connect_to_endpoint(endpoint_rules, headers, query_for_twitter)
-
 get_tweets(endpoint_get,headers)

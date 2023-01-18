@@ -1,7 +1,7 @@
 import os
-from dotenv import load_dotenv
-from azure.cosmos import CosmosClient, ContainerProxy, PartitionKey
 import json
+from dotenv import load_dotenv
+from azure.cosmos import CosmosClient, ContainerProxy, DatabaseProxy, PartitionKey
 
 load_dotenv()
 
@@ -14,7 +14,7 @@ def connect(endpoint:str, key:str) -> ContainerProxy:
     database_name = "raw_tweets"
     container_name = "tweets_db"
     partition_key = PartitionKey(path="/id")
-    database = client.create_database_if_not_exists(id=database_name)
+    database:DatabaseProxy = client.create_database_if_not_exists(id=database_name)
     container:ContainerProxy = database.create_container_if_not_exists(id=container_name, partition_key=partition_key)
     return container
 
