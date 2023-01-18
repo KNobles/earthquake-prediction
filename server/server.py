@@ -2,8 +2,10 @@ import os
 import json
 import socket
 import requests
+
 from dotenv import load_dotenv
 from utils.query import query_earthquake_translations
+from utils.query_for_twitter import query_for_twitter
 
 load_dotenv()
 
@@ -13,13 +15,12 @@ endpoint_rules = "https://api.twitter.com/2/tweets/search/stream/rules"
 
 # Set localhost socket parameters
 HOST = "127.0.0.1"
-PORT = 9090
+PORT = 9095
 
 # Create local socket
 local_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 local_socket.bind((HOST, PORT))
 local_socket.listen(1)
-
 conn, addr = local_socket.accept()
 print("Connected by", addr)
 
@@ -65,28 +66,30 @@ def get_tweets(url,headers):
             if line==b'':
                 pass
             else:
-                json_response = json.loads(line)
+                try:
+                    json_response = json.loads(line)
+                    
+                    tweet_id = json_response["data"]["id"]
+                    tweet_text = json_response["data"]["text"]
+                    tweet_lang = json_response["data"]["lang"]
+                    tweet_username = json_response["includes"]["users"][0]["username"]
+                    tweet_geo = json_response["data"]["geo"]
 
-                tweet_id = json_response["data"]["id"]
-                tweet_text = json_response["data"]["text"]
-                tweet_lang = json_response["data"]["lang"]
-                tweet_username = json_response["data"]["includes"]["users"][0]["username"]
-                tweet_geo = json_response["data"]["geo"]
-
-                data_to_send = {
-                    "id":tweet_id, 
-                    "text":tweet_text, 
-                    "lang":tweet_lang, 
-                    "username":tweet_username, 
-                    "geo":tweet_geo
-                }
-
-                data_to_send_str = str(data_to_send) + "\n"
-                
-                conn.send(bytes(data_to_send_str,'utf-8'))
+                    data_to_send = {
+                        "id":tweet_id, 
+                        "text":tweet_text, 
+                        "lang":tweet_lang, 
+                        "username":tweet_username, 
+                        "geo":tweet_geo
+                    }
+                    
+                    data_to_send_str = str(data_to_send) + "\n"
+                    print(data_to_send_str)
+                    
+                    conn.send(bytes(data_to_send_str,'utf-8'))
+                except Exception as e:
+                    print(e)
 
 headers = request_headers(bearer_token)
-
-json_response = connect_to_endpoint(endpoint_rules, headers, query_parameters)
-
+json_response = connect_to_endpoint(endpoint_rules, headers, query_for_twitter)
 get_tweets(endpoint_get,headers)
