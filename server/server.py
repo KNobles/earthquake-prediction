@@ -2,36 +2,29 @@ import os
 import json
 import socket
 import requests
+
+# Load bearer token from .env file
 from dotenv import load_dotenv
-
 load_dotenv()
-
 bearer_token = os.environ["BEARER_TOKEN"]
+
+# Load query parameters from utils/query_for_twitter.py
+from utils.query_for_twitter import query_for_twitter
+
 endpoint_get = "https://api.twitter.com/2/tweets/search/stream"
-tweet_lookup_endpoint = "https://api.twitter.com/2/tweets/"
-#URL to add rules for tweet search
 endpoint_rules = "https://api.twitter.com/2/tweets/search/stream/rules"
 
 # Set localhost socket parameters
 HOST = "127.0.0.1"
-PORT = 9090
+PORT = 9095
 
 # Create local socket
 local_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 local_socket.bind((HOST, PORT))
 local_socket.listen(1)
-
 conn, addr = local_socket.accept()
 print("Connected by", addr)
 
-#Body to add into Post request (so this is not "parameter" but "json" part in your Post request)
-query_parameters = {
-"add": [
-    {"value":"earthquake has:geo"},
-    {"value":"#earthquake", "tag": "earthquake"},
-    {"value":"earthquake"} #has:geo -is:retweet
-    ]
-}
 
 def request_headers(bearer_token: str) -> dict:
     """
@@ -56,7 +49,12 @@ def get_tweets(url,headers):
     Returns a Json format data where you can find Tweet id, text and some metadata.
     Sends the data to your defined local port where Spark reads streaming data.
     """
-    get_response = requests.get(url=url,headers=headers,stream=True)
+    params = {
+    'tweet.fields':'geo,lang',
+    'expansions':'author_id,geo.place_id',
+    'user.fields':'username'
+    }
+    get_response = requests.get(url=url,headers=headers,stream=True, params=params)
 
     if get_response.status_code!=200:
         print(get_response.status_code)
@@ -66,17 +64,29 @@ def get_tweets(url,headers):
             if line==b'':
                 pass
             else:
-                json_response = json.loads(line)  #json.loads----->Deserialize fp (a .read()-supporting text file or binary file containing a JSON document) to a Python object using this conversion table.ie json to python object 
+                json_response = json.loads(line)
+                
+
                 tweet_id = json_response["data"]["id"]
-                params = {'tweet.fields':'geo,lang,withheld', 'expansions':'geo.place_id'}
-                tweet_lookup = requests.get(url=tweet_lookup_endpoint + tweet_id, headers=headers, params=params)
-                tweet_lookup_str = str(tweet_lookup.json()["data"]) + "\n"
-                conn.send(bytes(tweet_lookup_str,'utf-8'))
+                tweet_text = json_response["data"]["text"]
+                tweet_lang = json_response["data"]["lang"]
+                tweet_username = json_response["includes"]["users"][0]["username"]
+                tweet_geo = json_response["data"]["geo"]
+
+                data_to_send = {
+                    "id":tweet_id, 
+                    "text":tweet_text, 
+                    "lang":tweet_lang, 
+                    "username":tweet_username, 
+                    "geo":tweet_geo
+                }
+                
+                data_to_send_str = str(data_to_send) + "\n"
+                print(data_to_send_str)
+                conn.send(bytes(data_to_send_str,'utf-8'))
 
 headers = request_headers(bearer_token)
 
-json_response = connect_to_endpoint(endpoint_rules, headers, query_parameters)
-
-headers = request_headers(bearer_token)
+json_response = connect_to_endpoint(endpoint_rules, headers, query_for_twitter)
 
 get_tweets(endpoint_get,headers)

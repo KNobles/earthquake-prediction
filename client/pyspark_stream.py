@@ -1,9 +1,10 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import *
+from utils.nosql_crud import *
 
 # Set localhost socket parameters from ther server
 HOST = "127.0.0.1"
-PORT = 9090
+PORT = 9095
 
 # Create Spark session
 spark = SparkSession.builder.appName("Twitter Stream Reader").getOrCreate()
@@ -19,5 +20,6 @@ stream = spark.readStream.format("socket") \
 query = stream.writeStream.format("console") \
   .option("truncate", False) \
   .outputMode("append") \
+  .foreachBatch(insert_tweet)\
   .start() \
   .awaitTermination()
