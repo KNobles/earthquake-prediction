@@ -44,3 +44,4 @@ query = stream.writeStream.format("console") \
 # tweet = json.load(test.json)
 
 # insert_tweet()
+
