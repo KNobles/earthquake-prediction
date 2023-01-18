@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from azure.cosmos import CosmosClient, ContainerProxy, PartitionKey
+import json
 
 load_dotenv()
 
@@ -18,6 +19,16 @@ def connect(endpoint:str, key:str) -> ContainerProxy:
     return container
 
 # Inserts tweet to DB
-def insert_tweet(tweet_dict:dict):
+def insert_tweet(tweet_dict:dict, tweet_id:int):
     container = connect(endpoint=endpoint, key=key)
-    container.create_item(tweet_dict)
+    print('firsthere------------------')
+    if (tweet_id != 0):
+        print(tweet_dict.collect()[0][0])
+        json_object = tweet_dict.collect()[0][0]
+        tweet = tweet_dict.toJSON().first()
+        print('here------------------')
+        container.create_item(tweet)
+# with open('test.json') as f:
+#     tweet = json.load(f)
+
+# insert_tweet(tweet)

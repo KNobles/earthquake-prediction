@@ -1,5 +1,14 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import *
+from utils.nosql_crud import *
+import os
+from dotenv import load_dotenv
+import json
+
+load_dotenv()
+
+endpoint = os.environ["NOSQL_ENDPOINT"]
+key = os.environ["NOSQL_KEY"]
 
 # Set localhost socket parameters from ther server
 HOST = "127.0.0.1"
@@ -19,5 +28,19 @@ stream = spark.readStream.format("socket") \
 query = stream.writeStream.format("console") \
   .option("truncate", False) \
   .outputMode("append") \
+  .foreachBatch(insert_tweet)\
   .start() \
   .awaitTermination()
+
+# streamQuery = stream.writeStream.format("cosmos.oltp")\
+#     .option("spark.cosmos.container", "tweets")\
+#     .option("checkpointLocation", "/tmp/myRunId/")\
+#     .outputMode("append")\
+#     .start()
+# def func(batch_df, batch_id):
+#   batch_df
+
+
+# tweet = json.load(test.json)
+
+# insert_tweet()
