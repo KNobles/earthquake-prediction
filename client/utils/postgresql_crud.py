@@ -23,15 +23,15 @@ print("Connection established")
 cursor = conn.cursor()
 
 # Create a table
-
 # cursor.execute("CREATE TABLE tweet_info(id VARCHAR PRIMARY KEY, latitude DECIMAL(7,5), longitude DECIMAL(8,5));")
 # print("Finished creating table")
+
 def delete_content():
     cursor.execute("TRUNCATE tweet_info;")
     conn.commit()
 
-# delete_content()
 count = 0
+
 while True:
     try:
         count += 1

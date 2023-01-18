@@ -4,7 +4,6 @@ import socket
 import requests
 
 from dotenv import load_dotenv
-from utils.query import query_earthquake_translations
 from utils.query_for_twitter import query_for_twitter
 
 load_dotenv()
@@ -25,7 +24,7 @@ conn, addr = local_socket.accept()
 print("Connected by", addr)
 
 #Body to add into Post request (so this is not "parameter" but "json" part in your Post request)
-query_parameters = query_earthquake_translations()
+query_parameters = query_for_twitter
 
 def request_headers(bearer_token: str) -> dict:
     """

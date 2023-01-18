@@ -1,6 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import *
-from utils.nosql_crud import *
+from utils.nosql_crud import insert_tweet
 
 # Set localhost socket parameters from ther server
 HOST = "127.0.0.1"
