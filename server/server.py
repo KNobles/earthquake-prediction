@@ -9,9 +9,6 @@ load_dotenv()
 
 bearer_token = os.environ["BEARER_TOKEN"]
 endpoint_get = "https://api.twitter.com/2/tweets/search/stream"
-tweets_lookup_endpoint = "https://api.twitter.com/2/tweets/"
-users_lookup_endpoint = "https://api.twitter.com/2/users/"
-#URL to add rules for tweet search
 endpoint_rules = "https://api.twitter.com/2/tweets/search/stream/rules"
 
 # Set localhost socket parameters
@@ -27,10 +24,7 @@ conn, addr = local_socket.accept()
 print("Connected by", addr)
 
 #Body to add into Post request (so this is not "parameter" but "json" part in your Post request)
-
-
 query_parameters = query_earthquake_translations()
-
 
 def request_headers(bearer_token: str) -> dict:
     """
@@ -60,6 +54,7 @@ def get_tweets(url,headers):
     'expansions':'author_id,geo.place_id',
     'user.fields':'username'
     }
+
     get_response = requests.get(url=url,headers=headers,stream=True, params=params)
 
     if get_response.status_code!=200:
@@ -70,17 +65,28 @@ def get_tweets(url,headers):
             if line==b'':
                 pass
             else:
-                json_response = json.loads(line)  #json.loads----->Deserialize fp (a .read()-supporting text file or binary file containing a JSON document) to a Python object using this conversion table.ie json to python object 
+                json_response = json.loads(line)
+
                 tweet_id = json_response["data"]["id"]
-                print(json_response)
-                # print(json.dumps(json_response, indent=4, sort_keys=True))
-                json_response_str = str(json_response["data"]) + "\n"
-                conn.send(bytes(json_response_str,'utf-8'))
+                tweet_text = json_response["data"]["text"]
+                tweet_lang = json_response["data"]["lang"]
+                tweet_username = json_response["data"]["includes"]["users"][0]["username"]
+                tweet_geo = json_response["data"]["geo"]
+
+                data_to_send = {
+                    "id":tweet_id, 
+                    "text":tweet_text, 
+                    "lang":tweet_lang, 
+                    "username":tweet_username, 
+                    "geo":tweet_geo
+                }
+
+                data_to_send_str = str(data_to_send) + "\n"
+                
+                conn.send(bytes(data_to_send_str,'utf-8'))
 
 headers = request_headers(bearer_token)
 
 json_response = connect_to_endpoint(endpoint_rules, headers, query_parameters)
-
-headers = request_headers(bearer_token)
 
 get_tweets(endpoint_get,headers)
