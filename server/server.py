@@ -64,27 +64,30 @@ def get_tweets(url,headers):
             if line==b'':
                 pass
             else:
-                json_response = json.loads(line)
-                
+                try:
+                    json_response = json.loads(line)
+                    
 
-                tweet_id = json_response["data"]["id"]
-                tweet_text = json_response["data"]["text"]
-                tweet_lang = json_response["data"]["lang"]
-                tweet_username = json_response["includes"]["users"][0]["username"]
-                tweet_geo = json_response["data"]["geo"]
+                    tweet_id = json_response["data"]["id"]
+                    tweet_text = json_response["data"]["text"]
+                    tweet_lang = json_response["data"]["lang"]
+                    tweet_username = json_response["includes"]["users"][0]["username"]
+                    tweet_geo = json_response["data"]["geo"]
 
-                data_to_send = {
-                    "id":tweet_id, 
-                    "text":tweet_text, 
-                    "lang":tweet_lang, 
-                    "username":tweet_username, 
-                    "geo":tweet_geo
-                }
-                
-                data_to_send_str = str(data_to_send) + "\n"
-                print(data_to_send_str)
-                
-                conn.send(bytes(data_to_send_str,'utf-8'))
+                    data_to_send = {
+                        "id":tweet_id, 
+                        "text":tweet_text, 
+                        "lang":tweet_lang, 
+                        "username":tweet_username, 
+                        "geo":tweet_geo
+                    }
+                    
+                    data_to_send_str = str(data_to_send) + "\n"
+                    print(data_to_send_str)
+                    
+                    conn.send(bytes(data_to_send_str,'utf-8'))
+                except:
+                    print("Error")
 
 headers = request_headers(bearer_token)
 
