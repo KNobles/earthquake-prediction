@@ -9,28 +9,32 @@ from utils.query_for_twitter import query_for_twitter
 
 load_dotenv()
 
+logging.basicConfig(
+        level=logging.INFO,
+        handlers=[
+            # Write logs to file
+            logging.FileHandler(f"logs/{datetime.now().strftime('%d-%m-%Y%H:%M')}.log"),
+            logging.StreamHandler(),
+        ])
+
+logger = logging.getLogger("TWITTER SERVER")
 bearer_token = os.environ["BEARER_TOKEN"]
 endpoint_get = "https://api.twitter.com/2/tweets/search/stream"
 endpoint_rules = "https://api.twitter.com/2/tweets/search/stream/rules"
 
 # Set localhost socket parameters
 HOST = os.environ.get("HOST", "127.0.0.1")
-# HOST = "127.0.0.1"
 PORT = 9095
 
-print("="*100)
-print(f"HOST = {HOST}")
-print("="*100)
-
-# TODO Create a function for the server (useful if it crashes so we call it again)
-
-print(f"Listening to port {PORT}...")
-# Create local socket
-local_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-local_socket.bind((HOST, PORT))
-local_socket.listen(1)
-conn, addr = local_socket.accept()
-print("Connected by", addr)
+def server_connect(HOST, PORT):
+    logger.info(f"Listening to port {PORT}...")
+    # Create local socket
+    local_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    local_socket.bind((HOST, PORT))
+    local_socket.listen(1)
+    conn, addr = local_socket.accept()
+    logger.info("Connected by", addr)
+    return conn
 
 #Body to add into Post request (so this is not "parameter" but "json" part in your Post request)
 query_parameters = query_for_twitter
@@ -67,7 +71,7 @@ def get_tweets(url,headers):
     get_response = requests.get(url=url,headers=headers,stream=True, params=params)
 
     if get_response.status_code!=200:
-        print(f"TWITTER API CODE: {get_response.status_code}")
+        logger.info(f"TWITTER API CODE: {get_response.status_code}")
     
     else:
         for line in get_response.iter_lines():
@@ -77,28 +81,57 @@ def get_tweets(url,headers):
                 try:
                     json_response = json.loads(line)
                     
-                    tweet_id = json_response["data"]["id"]
-                    tweet_text = json_response["data"]["text"]
-                    tweet_lang = json_response["data"]["lang"]
-                    tweet_username = json_response["includes"]["users"][0]["username"]
-                    tweet_geo = json_response["data"]["geo"]
+                    tweet_field = json_response["data"] 
+                    user_field = json_response.get("includes", {}).get("users", [])[0]
+                    place_field = json_response.get("includes", {}).get("places", [])[0]
+
+                    tweet_id = tweet_field["id"]
+                    tweet_text = tweet_field["text"]
+                    tweet_author_id = tweet_field["author_id"]
+                    tweet_created_at = tweet_field["created_at"]
+                    tweet_lang = tweet_field["lang"]
+                    
+                    if len(user_field != 0):
+                        user_id = user_field["id"]
+                        user_username = user_field["username"]
+
+                    if len(place_field != 0):
+                        place_country = place_field["country"]
+                        place_city = place_field["name"]
+                        place_type = place_field["place_type"]
+                    
+                        if place_field["geo"]["type"] == "Point":
+                            place_geo = place_field["geo"]["coordinates"]
+                        elif place_field["geo"]["type"] == "Feature":
+                            place_geo = place_field["geo"]["bbox"]
+                    # Check if geo.type = Feature then "bbox" else if POINT its the coordinates-3.88
 
                     data_to_send = {
-                        "id":tweet_id, 
-                        "text":tweet_text, 
-                        "lang":tweet_lang, 
-                        "username":tweet_username, 
-                        "geo":tweet_geo
+                        "tweet_id":tweet_id, 
+                        "tweet_text":tweet_text,
+                        "tweet_author_id":tweet_author_id,
+                        "tweet_created_at":tweet_created_at, 
+                        "tweet_lang":tweet_lang,
+                        "user_id":user_id, 
+                        "user_username":user_username,
+                        "place_country":place_country,
+                        "place_city":place_city,
+                        "place_geo":place_geo,
+                        "place_place_type":place_type
                     }
                     
                     data_to_send_str = str(data_to_send) + "\n"
-                    print(data_to_send_str)
+                    logger.info(data_to_send_str)
                     
                     conn.send(bytes(data_to_send_str,'utf-8'))
-                except Exception as e:
+
+                except BrokenPipeError as e:
                     # TODO Call the server function and get_tweets here.
                     print(e)
+                    server_connect(HOST, PORT)
+                    get_tweets(url, headers)
 
+conn = server_connect(HOST, PORT)
 headers = request_headers(bearer_token)
 json_response = connect_to_endpoint(endpoint_rules, headers, query_for_twitter)
 get_tweets(endpoint_get,headers)
