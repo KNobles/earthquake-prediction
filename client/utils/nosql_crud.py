@@ -23,7 +23,6 @@ def connect(endpoint:str, key:str) -> ContainerProxy:
 # Inserts tweet to DB
 def insert_tweet(tweet_dict:dict, tweet_id:int):
     container = connect(endpoint=endpoint, key=key)
-    print('firsthere------------------')
     if (tweet_id != 0):
         print("tweet dict collect ",tweet_dict.collect()[0][0])
         json_object = tweet_dict.collect()[0][0]
