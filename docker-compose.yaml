@@ -16,8 +16,6 @@ services:
     networks:
       - mynetwork
 
-
-
   myclient:
     image: twitter_client:latest
     build: 
