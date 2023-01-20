@@ -63,12 +63,12 @@ def insert_tweet(tweet_dict:dict, tweet_id:int):
         container.create_item(tweet_json)
 
 #search for tweets
-def query_items(attribute:str,query):
+def query_items(attribute:str,value):
     container = connect(endpoint=endpoint, key=key)
     items = list(container.query_items(
-        query="SELECT * FROM r WHERE r." + attribute + "=@query OR r." + attribute + " LIKE '%" + query + "%'",
+        query="SELECT * FROM r WHERE r." + attribute + "=@query OR r." + attribute + " LIKE '%" + value + "%'",
         parameters=[
-            {"name":"@query", "value": query},
+            {"name":"@query", "value": value},
             
         ],
         enable_cross_partition_query=True
