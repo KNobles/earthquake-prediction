@@ -22,9 +22,11 @@ print("Connection established")
 
 cursor = conn.cursor()
 
+# TODO Create a Sample table which has the same columns but only ~500 items
+# TODO Create tweet_info table which will have the data processed by the ML sent live
 # Create a table
-# cursor.execute("CREATE TABLE tweet_info(id VARCHAR PRIMARY KEY, latitude DECIMAL(7,5), longitude DECIMAL(8,5));")
-# print("Finished creating table")
+cursor.execute("CREATE TABLE tweet_info(id VARCHAR PRIMARY KEY, latitude DECIMAL(7,5), longitude DECIMAL(8,5));")
+print("Finished creating table")
 
 def delete_content():
     cursor.execute("TRUNCATE tweet_info;")
