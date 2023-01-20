@@ -1,0 +1,39 @@
+version: "3.3"
+services:
+  myserver:
+    image: twitter_server:latest
+    build:
+      context: ./
+      dockerfile: server/Dockerfile
+
+    ports: 
+      - 9095
+
+    env_file:
+      - ./.env
+    
+    networks:
+      - mynetwork
+
+
+
+  myclient:
+    image: twitter_client:latest
+    build: 
+      context: ./
+      dockerfile: client/Dockerfile
+    
+    env_file:
+      - ./.env
+
+    networks:
+      - mynetwork
+
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - myserver
+
+networks:
+  mynetwork:
+    driver: bridge

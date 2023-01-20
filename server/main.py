@@ -1,8 +1,9 @@
 import os
 import json
 import socket
+import logging
 import requests
-
+from datetime import datetime
 from dotenv import load_dotenv
 from utils.query_for_twitter import query_for_twitter
 
@@ -13,9 +14,17 @@ endpoint_get = "https://api.twitter.com/2/tweets/search/stream"
 endpoint_rules = "https://api.twitter.com/2/tweets/search/stream/rules"
 
 # Set localhost socket parameters
-HOST = "127.0.0.1"
+HOST = os.environ.get("HOST", "127.0.0.1")
+# HOST = "127.0.0.1"
 PORT = 9095
 
+print("="*100)
+print(f"HOST = {HOST}")
+print("="*100)
+
+# TODO Create a function for the server (useful if it crashes so we call it again)
+
+print(f"Listening to port {PORT}...")
 # Create local socket
 local_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 local_socket.bind((HOST, PORT))
@@ -58,7 +67,7 @@ def get_tweets(url,headers):
     get_response = requests.get(url=url,headers=headers,stream=True, params=params)
 
     if get_response.status_code!=200:
-        print(get_response.status_code)
+        print(f"TWITTER API CODE: {get_response.status_code}")
     
     else:
         for line in get_response.iter_lines():
@@ -87,6 +96,7 @@ def get_tweets(url,headers):
                     
                     conn.send(bytes(data_to_send_str,'utf-8'))
                 except Exception as e:
+                    # TODO Call the server function and get_tweets here.
                     print(e)
 
 headers = request_headers(bearer_token)

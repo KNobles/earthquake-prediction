@@ -1,8 +1,9 @@
+import os
 from pyspark.sql import SparkSession
 from utils.nosql_crud import insert_tweet
 
 # Set localhost socket parameters from ther server
-HOST = "127.0.0.1"
+HOST = os.environ.get("HOST", "127.0.0.1")
 PORT = 9095
 
 # Create Spark session
