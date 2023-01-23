@@ -1,0 +1,15 @@
+{"data": {"attachments": {}, "author_id": "87610549", "conversation_id": "1617443291120959489", "created_at": "2023-01-23T08: 45: 05.000Z", "edit_history_tweet_ids": ["1617443291120959489"
+        ], "entities": {"annotations": [
+                {"start": 24, "end": 43, "probability": 0.8186, "type": "Other", "normalized_text": "Verdad Del Terremoto"
+                }
+            ], "mentions": [
+                {"start": 3, "end": 19, "username": "Terremotode1985", "id": "1464835611525894146"
+                }
+            ]
+        }, "geo": {}, "id": "1617443291120959489", "lang": "es", "possibly_sensitive": False, "public_metrics": {"retweet_count": 14, "reply_count": 0, "like_count": 0, "quote_count": 0, "impression_count": 0
+        }, "referenced_tweets": [
+            {"type": "retweeted", "id": "1617381679269543938"
+            }
+        ], "text": "RT @Terremotode1985: La Verdad Del Terremoto no solo resguarda archivo fotográfico, filmico y audiovisual, si no que también mantiene en su…"
+    }, "includes": {"users": [
+            {"created_at": "2009-11-05T03: 54: 45.000Z", "description": "Soy ecatepense, no tengo caralibro y vivo en la tierra del Dios del Viento.", "id": "87610549", "location": "Ecatepec de Morelos, México", "name": "Felipe Cardoso 🇲🇽", "pinned_tweet_id": "1314268489490849792", "profile_image_url": "https: //pbs.twimg.com/profile_images/695149605277663232/tcdgTrix_normal.jpg", "protected": False, "username": "Felipecardolo", "verified": False}, {"created_at": "2021-11-28T05:57:01.000Z", "description": "Perfil dedicado al Terremoto de 1985 de la Ciudad de México | Proyecto de David Valdez | 2 años de investigación", "entities": {"url": {"urls": [{"start": 0, "end": 23, "url": "https://t.co/Jpv7ygKsbA", "expanded_url": "https://youtube.com/channel/UCMCKJPv6czet8I4vCunWGxg", "display_url": "youtube.com/channel/UCMCKJ…"}]}}, "id": "1464835611525894146", "location": "Distrito Federal, México", "name": "La Verdad Del Terremoto", "pinned_tweet_id": "1491898365101187074", "profile_image_url": "https://pbs.twimg.com/profile_images/1576257105606082566/P5g3sVWK_normal.jpg", "protected": False, "url": "https://t.co/Jpv7ygKsbA", "username": "Terremotode1985", "verified": False}]}, "matching_rules": [{"id": "1616012888459599882", "tag": ""}]}

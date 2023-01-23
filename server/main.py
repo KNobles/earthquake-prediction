@@ -78,9 +78,10 @@ def get_tweets(url:str, headers:dict) -> None:
     Sends the data to your defined local port where Spark reads streaming data.
     """
     params = {
-    'tweet.fields':'geo,lang',
-    'expansions':'author_id,geo.place_id',
-    'user.fields':'username'
+    "tweet.fields":"geo,lang,attachments,context_annotations,conversation_id,created_at,entities,organic_metrics,promoted_metrics,possibly_sensitive,referenced_tweets,public_metrics,source,withheld",
+    "user.fields":"created_at,description,entities,location,pinned_tweet_id,profile_image_url,protected,url,username,verified,withheld",
+    "place.fields":"contained_within,country,country_code,full_name,geo,id,name,place_type",
+    "expansions":"author_id,geo.place_id"
     }
 
     get_response = requests.get(url=url,headers=headers,stream=True, params=params)
@@ -95,11 +96,27 @@ def get_tweets(url:str, headers:dict) -> None:
             else:
                 try:
                     json_response = json.loads(line)
-                    
+                    logger.info(json_response)
                     tweet_field = json_response["data"] 
                     user_field = json_response.get("includes", {}).get("users", [])[0]
-                    place_field = json_response.get("includes", {}).get("places", [])[0]
-
+                    try:
+                        place_field = json_response.get("includes", {}).get("places", [])
+                        if len(place_field != 0):
+                            place_country = place_field["country"]
+                            place_city = place_field["name"]
+                            place_type = place_field["place_type"]
+                        
+                            if place_field["geo"]["type"] == "Point":
+                                place_geo = place_field["geo"]["coordinates"]
+                            elif place_field["geo"]["type"] == "Feature":
+                                place_geo = place_field["geo"]["bbox"]
+                    except KeyError as err:
+                        logger.info("No 'places' field")
+                        place_country = None
+                        place_city = None
+                        place_geo = None
+                        place_type = None
+                                            
                     tweet_id = tweet_field["id"]
                     tweet_text = tweet_field["text"]
                     tweet_author_id = tweet_field["author_id"]
@@ -109,17 +126,6 @@ def get_tweets(url:str, headers:dict) -> None:
                     if len(user_field != 0):
                         user_id = user_field["id"]
                         user_username = user_field["username"]
-
-                    if len(place_field != 0):
-                        place_country = place_field["country"]
-                        place_city = place_field["name"]
-                        place_type = place_field["place_type"]
-                    
-                        if place_field["geo"]["type"] == "Point":
-                            place_geo = place_field["geo"]["coordinates"]
-                        elif place_field["geo"]["type"] == "Feature":
-                            place_geo = place_field["geo"]["bbox"]
-                    # Check if geo.type = Feature then "bbox" else if POINT its the coordinates-3.88
 
                     data_to_send = {
                         "tweet_id":tweet_id, 
