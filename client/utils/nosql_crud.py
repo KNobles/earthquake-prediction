@@ -20,9 +20,9 @@ def connect(endpoint:str, key:str) -> ContainerProxy:
     return container
 
 # Inserts tweet to DB
-def insert_tweet(tweet_dict:dict, tweet_id:int):
+def insert_tweet(tweet_dict:dict, batch_id:int):
     container = connect(endpoint=endpoint, key=key)
-    if (tweet_id != 0):
+    if batch_id != 0:
         print("tweet dict collect ",tweet_dict.collect()[0][0])
         json_object = tweet_dict.collect()[0][0]
         print("type: ",type(json_object))

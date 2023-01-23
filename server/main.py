@@ -38,19 +38,22 @@ def server_connect(HOST:str, PORT:int) -> socket:
 #Body to add into Post request (so this is not "parameter" but "json" part in your Post request)
 tweet_rules = {
     "add": [
-        {"value": "earthquake"},
-        {"value": "jishin"},
-        {"value": "gempa bumi"},
-        {"value": "terremoto"},
-        {"value": "temblor"},
-        {"value": "sismo"},
-        #Twitter accounts that tweet about earthquakes:,
-        {"value":"(from:SismologicoMX OR from:sismos_chile OR from:Sismos_Peru_IGP)"},
+        {"value": "earthquake -is:retweet "},
+        {"value": "jishin -is:retweet"},
+        {"value": "gempa bumi -is:retweet"},
+        {"value": "terremoto -is:retweet"},
+        {"value": "temblor -is:retweet"},
+        {"value": "sismo -is:retweet"},
+        #Earthquake in several languages with hashtags:
+        {"value": "(#earthquake OR #jishin OR #gempabumi OR #terremoto OR #temblor OR #sismo) -is:retweet"},
+        #Entities:
+        {"value":"(entity:EmergencyEvents OR entity:Weather OR entity:Events OR entity:LocalNews)"},
+        #Twitter accounts that tweet about earthquakes:
+        # {"value":"(from:SismologicoMX OR from:sismos_chile OR from:Sismos_Peru_IGP) -is:retweet"},
         {"value":"""(
-            from:USGSted OR from:LastQuake OR from:EmsC OR from:QuakesToday OR 
-            from:earthquakeBot OR from:SismoDetector OR from:InfoEarthquakes OR 
-            from:SeismosApp OR fromeveryEarthquake OR from:eqgr
-            )"""}
+            from:USGSted OR from:LastQuake OR from:EmsC OR from:QuakesToday OR from:earthquakeBot OR 
+            from:SismoDetector OR from:InfoEarthquakes OR from:SeismosApp OR fromeveryEarthquake OR from:eqgr
+            ) -is:retweet"""}
         ]
     }
 
@@ -96,12 +99,12 @@ def get_tweets(url:str, headers:dict) -> None:
             else:
                 try:
                     json_response = json.loads(line)
-                    logger.info(json_response)
+                    # logger.info(json_response)
                     tweet_field = json_response["data"] 
                     user_field = json_response.get("includes", {}).get("users", [])[0]
                     try:
-                        place_field = json_response.get("includes", {}).get("places", [])
-                        if len(place_field != 0):
+                        place_field = json_response.get("includes", {}).get("places", [{}])[0]
+                        if len(place_field[0])  != 0:
                             place_country = place_field["country"]
                             place_city = place_field["name"]
                             place_type = place_field["place_type"]
@@ -123,12 +126,12 @@ def get_tweets(url:str, headers:dict) -> None:
                     tweet_created_at = tweet_field["created_at"]
                     tweet_lang = tweet_field["lang"]
                     
-                    if len(user_field != 0):
+                    if len(user_field) != 0:
                         user_id = user_field["id"]
                         user_username = user_field["username"]
 
                     data_to_send = {
-                        "tweet_id":tweet_id, 
+                        "id":tweet_id, 
                         "tweet_text":tweet_text,
                         "tweet_author_id":tweet_author_id,
                         "tweet_created_at":tweet_created_at, 
