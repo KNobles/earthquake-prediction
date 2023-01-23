@@ -5,7 +5,6 @@ import logging
 import requests
 from datetime import datetime
 from dotenv import load_dotenv
-from utils.query_for_twitter import query_for_twitter
 
 load_dotenv()
 
@@ -26,7 +25,7 @@ endpoint_rules = "https://api.twitter.com/2/tweets/search/stream/rules"
 HOST = os.environ.get("HOST", "127.0.0.1")
 PORT = 9095
 
-def server_connect(HOST, PORT):
+def server_connect(HOST:str, PORT:int) -> socket:
     logger.info(f"Listening to port {PORT}...")
     # Create local socket
     local_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -37,7 +36,23 @@ def server_connect(HOST, PORT):
     return conn
 
 #Body to add into Post request (so this is not "parameter" but "json" part in your Post request)
-query_parameters = query_for_twitter
+tweet_rules = {
+    "add": [
+        {"value": "earthquake"},
+        {"value": "jishin"},
+        {"value": "gempa bumi"},
+        {"value": "terremoto"},
+        {"value": "temblor"},
+        {"value": "sismo"},
+        #Twitter accounts that tweet about earthquakes:,
+        {"value":"(from:SismologicoMX OR from:sismos_chile OR from:Sismos_Peru_IGP)"},
+        {"value":"""(
+            from:USGSted OR from:LastQuake OR from:EmsC OR from:QuakesToday OR 
+            from:earthquakeBot OR from:SismoDetector OR from:InfoEarthquakes OR 
+            from:SeismosApp OR fromeveryEarthquake OR from:eqgr
+            )"""}
+        ]
+    }
 
 def request_headers(bearer_token: str) -> dict:
     """
@@ -56,7 +71,7 @@ def connect_to_endpoint(endpoint_url: str, headers: dict, parameters: dict) -> j
     
     return response.json()
 
-def get_tweets(url,headers):
+def get_tweets(url:str, headers:dict) -> None:
     """
     Fetch real-time tweets based on your custom filter rule.
     Returns a Json format data where you can find Tweet id, text and some metadata.
@@ -126,12 +141,11 @@ def get_tweets(url,headers):
                     conn.send(bytes(data_to_send_str,'utf-8'))
 
                 except BrokenPipeError as e:
-                    # TODO Call the server function and get_tweets here.
-                    print(e)
+                    print(e + ", Reconnecting...")
                     server_connect(HOST, PORT)
                     get_tweets(url, headers)
 
 conn = server_connect(HOST, PORT)
 headers = request_headers(bearer_token)
-json_response = connect_to_endpoint(endpoint_rules, headers, query_for_twitter)
+json_response = connect_to_endpoint(endpoint_rules, headers, tweet_rules)
 get_tweets(endpoint_get,headers)
