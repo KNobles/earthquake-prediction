@@ -104,7 +104,7 @@ def get_tweets(url:str, headers:dict) -> None:
                     user_field = json_response.get("includes", {}).get("users", [])[0]
                     try:
                         place_field = json_response.get("includes", {}).get("places", [{}])[0]
-                        if len(place_field[0])  != 0:
+                        if len(place_field[0]) != 0:
                             place_country = place_field["country"]
                             place_city = place_field["name"]
                             place_type = place_field["place_type"]
