@@ -4,6 +4,7 @@ from postgresql_crud import insert_data
 from geopy.geocoders import Nominatim
 import datetime
 from dateutil import parser
+import random
 
 """
     This script will extract Named Entities from a tweet text.
@@ -72,6 +73,7 @@ def get_geo_coordinates(location):
         pass #TODO define exception to be thrown
     return coordinates
 
+#TODO Final function to insert data in PostgreSQL
 def insert_metadata_in_db(test_tweet):
     entities = extract_entities_from_tweet_text(test_tweet)
     location = get_location_from_entities(entities)
@@ -88,6 +90,7 @@ def insert_metadata_in_db(test_tweet):
     insert_data(metadata)
     print("metadata inserted!")
 
+# TODO delete this function that reads from a csv file
 def insert_metadata_in_db_from_csv(id, text):
     entities = extract_entities_from_tweet_text(text)
     location = get_location_from_entities(entities)
@@ -99,7 +102,8 @@ def insert_metadata_in_db_from_csv(id, text):
         "lat" : coordinates[0][1] if coordinates != [] else None,
         "long" : coordinates[1][1] if coordinates != [] else None,
         "date" : date if date != "" else None, # yyyy-mm-dd
-        "time" : time if time != "" else None # hh:mm:ss
+        "time" : time if time != "" else None, # hh:mm:ss
+        "label" : random.randint(0,3)
     }
     try:
         insert_data(metadata)

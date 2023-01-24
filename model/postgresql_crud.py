@@ -21,19 +21,19 @@ print("Connection established")
 
 
 # TODO Create a Sample table which has the same columns but only ~500 items
-# TODO Create tweet_info table which will have the data processed by the ML sent live
 # Create a table
 def create_table():
     cursor = conn.cursor()
     cursor.execute("""
-CREATE TABLE IF NOT EXISTS tweet_info(
-    tweet_id VARCHAR PRIMARY KEY,
-    translated_text TEXT, 
-    geo_lat DECIMAL(7,5), 
-    geo_lng DECIMAL(8,5),
-    magnitude DECIMAL(3,1),
-    date DATE,
-    time TIME);""")
+CREATE TABLE IF NOT EXISTS tweet_processed_ml(
+    ml_tweet_id VARCHAR PRIMARY KEY,
+    ml_translated_text TEXT, 
+    ml_geo_lat DECIMAL(7,5), 
+    ml_geo_lng DECIMAL(8,5),
+    ml_magnitude DECIMAL(3,1),
+    ml_date DATE,
+    ml_time TIME,
+    ml_label SMALLINT);""")
     print("Finished creating table")
     conn.commit()
     cursor.close()
@@ -52,9 +52,11 @@ def insert_data(data:dict):
     long = data["long"]
     date = data["date"] # yyyy-mm-dd
     time = data["time"] # hh:mm:ss
-    query = """INSERT INTO tweet_info (tweet_id, translated_text, geo_lat, geo_lng, date, time) 
-    VALUES (%s,%s, %s, %s, %s, %s) ON CONFLICT(tweet_id) DO NOTHING;"""
-    cursor.execute(query, (id, text, lat, long, date, time))
+    label = data["label"]
+    query = """INSERT INTO tweet_processed_ml
+    (ml_tweet_id, ml_translated_text, ml_geo_lat, ml_geo_lng, ml_date, ml_time, ml_label) 
+    VALUES (%s,%s, %s, %s, %s, %s, %s) ON CONFLICT(ml_tweet_id) DO NOTHING;"""
+    cursor.execute(query, (id, text, lat, long, date, time, label))
     conn.commit()
     cursor.close()
 
@@ -68,7 +70,5 @@ def get_all_table():
     cursor.close()
 
 #get_all_table()
-
 #create_table()
-
 # insert_data({"id":'hjkdchjkd', "text":"henloo", "lat":88.0003, "date":"2023-01-20", "time":"14:22:37"})
