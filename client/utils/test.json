@@ -1,13 +1,18 @@
 {
-    "lang": "ja",
-    "text": "test tweet",
-    "edit_history_tweet_ids": [
-        "1614977884854300673"
-    ],
-    "id": "1614977884854300674",
-    "_rid": "LaN4AMT7pMQBAAAAAAAAAA==",
-    "_self": "dbs/LaN4AA==/colls/LaN4AMT7pMQ=/docs/LaN4AMT7pMQBAAAAAAAAAA==/",
-    "_etag": "\"000004aa-0000-0d00-0000-63c66eed0000\"",
+    "id": "1617813984681279489",
+    "tweet_text": "https://youtube.com Prelim M5.6 Earthquake Nepal Jan-24 08:58 UTC, updates https://t.co/oSGlcmKOv4",
+    "tweet_author_id": "44705716",
+    "tweet_created_at": "2023-01-24T09:18:06.000Z",
+    "tweet_lang": "en",
+    "user_id": "44705716",
+    "user_username": "USGSted",
+    "place_country": null,
+    "place_city": null,
+    "place_geo": null,
+    "place_place_type": null,
+    "_rid": "LaN4AIJYJhwlAgAAAAAAAQ==",
+    "_self": "dbs/LaN4AA==/colls/LaN4AIJYJhw=/docs/LaN4AIJYJhwlAgAAAAAAAQ==/",
+    "_etag": "\"050045a8-0000-0d00-0000-63cfa2540000\"",
     "_attachments": "attachments/",
-    "_ts": 1673948909
+    "_ts": 1674551892
 }

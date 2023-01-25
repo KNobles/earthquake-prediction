@@ -2,8 +2,12 @@ import os
 from dotenv import load_dotenv
 from azure.cosmos import CosmosClient, ContainerProxy, PartitionKey
 import json
+from json import loads
 import re
 import pandas as pd
+import requests
+from requests_html import HTMLSession
+from bs4 import BeautifulSoup
 
 load_dotenv()
 
@@ -40,7 +44,6 @@ def query_items(query_type,query):
         query="SELECT * FROM r WHERE r." + query_type + "=@query OR r." + query_type + " LIKE '%" + query + "%'",
         parameters=[
             {"name":"@query", "value": query},
-            
         ],
         enable_cross_partition_query=True
     ))
@@ -69,5 +72,68 @@ def delete_wrongly_structured_tweets():
         response = container.delete_item(item=item_id, partition_key=item_id)
     return print(f"{id_list} has been deleted")
 
+
+
+def insert_tweet(tweet_dict:dict, tweet_id:int):
+    container = connect(endpoint=endpoint, key=key)
+    if (tweet_id != 0):
+        print("tweet dict collect ",tweet_dict.collect()[0][0])
+        json_object = tweet_dict.collect()[0][0]
+        print("type json: ",type(json_object))
+        tweet_dumps = json.dumps(eval(json_object))
+        print('type dumps: ', type(tweet_dumps))
+        # if tweet_json['user_username'] == "USGSted":
+        #     print("scraping for usgs")
+        #     usgs_scraping(tweet_dumps)
+        tweet_json = json.loads(tweet_dumps)
+        print("tweet json: ",tweet_json)
+        print("type: ",type(tweet_json))
+        # container.create_item(tweet_json)
+
+# f = open("test.json")
+# data = json.load(f)
+
+# if data['user_username'] == "USGSted":
+#     link = re.findall('(https?:\/\/?[\da-z\.-]+\.[a-z\.]{2,6}[\/\w \.-]*)', data['tweet_text'])
+#     for url in link:
+#         word = "t.co"
+#         if word in url:
+#             print(url)
+#             page = requests.get(url)
+#             general_url = re.sub("\?.*$", "", page.url)
+#             print(page.url)
+#             print(general_url)
+#             origin_url = general_url + "/origin/detail"
+#             print(origin_url)
+#             session = HTMLSession()
+#             origin_page = session.get(origin_url)
+#             origin_page.html.render()
+#             location = origin_page.html.xpath('/html/body/app-root/app-event-page/hazdev-template/hazdev-template-sidenav/div/div[3]/hazdev-template-page/main/div/origin/product-page/section/origin-detail/dl')
+#             print(location)
+
+
+def usgs_scraping(tweet_dict:dict):
+    
+    link = re.search("(https?:\/\/?[\da-z\.-]+\.[a-z\.]{2,6}[\/\w \.-]*)", tweet_dict['tweet_text']).group()
+    
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    driver = webdriver.Chrome(options=chrome_options)
+    driver.get(link)
+    
+    time = WebDriverWait(driver,5).until(EC.presence_of_element_located((By.XPATH,'/html/body/app-root/app-event-page/hazdev-template/hazdev-template-sidenav/div/div[3]/hazdev-template-page/main/div/event-page-header/header/ul/li[1]'))).text
+    gps_coord = WebDriverWait(driver,5).until(EC.presence_of_element_located((By.XPATH,'/html/body/app-root/app-event-page/hazdev-template/hazdev-template-sidenav/div/div[3]/hazdev-template-page/main/div/event-page-header/header/ul/li[2]'))).text
+    depth = WebDriverWait(driver,5).until(EC.presence_of_element_located((By.XPATH,'/html/body/app-root/app-event-page/hazdev-template/hazdev-template-sidenav/div/div[3]/hazdev-template-page/main/div/event-page-header/header/ul/li[3]'))).text
+    magnitude = WebDriverWait(driver,1000).until(EC.presence_of_element_located((By.XPATH, '/html/body/app-root/app-event-page/hazdev-template/hazdev-template-sidenav/div/div[3]/hazdev-template-page/main/header/h1'))).text
+    # print(magnitude,time,gps_coord,depth)
+    
+    magnitude = re.search("-?[0-9].[0-9]", magnitude).group()
+
+    tweet_dict['magnitude'] = magnitude
+    tweet_dict['time'] = time
+    tweet_dict['coordinates'] = gps_coord
+    tweet_dict['depth'] = depth
+    # print(tweet_dict[id])
+    return tweet_dict
 
 

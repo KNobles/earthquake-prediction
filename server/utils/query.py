@@ -35,7 +35,7 @@ def query_earthquake_translations():
         {"value":"from:Sismos_Peru_IGP"},
         {"value":"(from:USGSted OR from:LastQuake OR from:EmsC OR from:QuakesToday OR\
         from:earthquakeBot OR from:SismoDetector OR from:InfoEarthquakes OR from:SeismosApp\
-        OR fromeveryEarthquake OR from:eqgr)"},
+        OR from:everyEarthquake OR from:eqgr)"},
 
         ]
     }

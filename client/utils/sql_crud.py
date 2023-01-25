@@ -12,3 +12,8 @@ conn = psycopg2.connect(
     host=os.environ["host"]
     port=os.environ["port"]
 )
+
+cursor = conn.cursor()
+
+def read_database(cursor):
+    psotgreSQL_select_query = "select * from processed_tweets"
