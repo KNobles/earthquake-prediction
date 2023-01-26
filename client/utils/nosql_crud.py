@@ -77,40 +77,18 @@ def delete_wrongly_structured_tweets():
 def insert_tweet(tweet_dict:dict, tweet_id:int):
     container = connect(endpoint=endpoint, key=key)
     if (tweet_id != 0):
-        print("tweet dict collect ",tweet_dict.collect()[0][0])
+        # print("tweet dict collect ",tweet_dict.collect()[0][0])
         json_object = tweet_dict.collect()[0][0]
-        print("type json: ",type(json_object))
+        # print("type json: ",type(json_object))
         tweet_dumps = json.dumps(eval(json_object))
-        print('type dumps: ', type(tweet_dumps))
-        # if tweet_json['user_username'] == "USGSted":
-        #     print("scraping for usgs")
-        #     usgs_scraping(tweet_dumps)
+        # print('type dumps: ', type(tweet_dumps))
         tweet_json = json.loads(tweet_dumps)
-        print("tweet json: ",tweet_json)
-        print("type: ",type(tweet_json))
-        # container.create_item(tweet_json)
-
-# f = open("test.json")
-# data = json.load(f)
-
-# if data['user_username'] == "USGSted":
-#     link = re.findall('(https?:\/\/?[\da-z\.-]+\.[a-z\.]{2,6}[\/\w \.-]*)', data['tweet_text'])
-#     for url in link:
-#         word = "t.co"
-#         if word in url:
-#             print(url)
-#             page = requests.get(url)
-#             general_url = re.sub("\?.*$", "", page.url)
-#             print(page.url)
-#             print(general_url)
-#             origin_url = general_url + "/origin/detail"
-#             print(origin_url)
-#             session = HTMLSession()
-#             origin_page = session.get(origin_url)
-#             origin_page.html.render()
-#             location = origin_page.html.xpath('/html/body/app-root/app-event-page/hazdev-template/hazdev-template-sidenav/div/div[3]/hazdev-template-page/main/div/origin/product-page/section/origin-detail/dl')
-#             print(location)
-
+        if tweet_json['user_username'] == "USGSted" or tweet_json['user_username'] == "everyEarthquake":
+            print("scraping for usgs")
+            tweet_json = usgs_scraping(tweet_json)
+        # print("tweet json: ",tweet_json)
+        # print("type: ",type(tweet_json))
+        container.create_item(tweet_json)
 
 def usgs_scraping(tweet_dict:dict):
     
@@ -134,6 +112,6 @@ def usgs_scraping(tweet_dict:dict):
     tweet_dict['coordinates'] = gps_coord
     tweet_dict['depth'] = depth
     # print(tweet_dict[id])
-    return tweet_dict
+    return tweet_dict 
 
 
