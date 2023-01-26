@@ -72,27 +72,3 @@ def delete_wrongly_structured_tweets():
     for item_id in id_list:
         response = container.delete_item(item=item_id, partition_key=item_id)
     return print(f"{id_list} has been deleted")
-
-def usgs_scraping(tweet_dict:dict):
-    
-    link = re.search("(https?:\/\/?[\da-z\.-]+\.[a-z\.]{2,6}[\/\w \.-]*)", tweet_dict['tweet_text']).group()
-    
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    driver = webdriver.Chrome(options=chrome_options)
-    driver.get(link)
-    
-    time = WebDriverWait(driver,5).until(EC.presence_of_element_located((By.XPATH,'/html/body/app-root/app-event-page/hazdev-template/hazdev-template-sidenav/div/div[3]/hazdev-template-page/main/div/event-page-header/header/ul/li[1]'))).text
-    gps_coord = WebDriverWait(driver,5).until(EC.presence_of_element_located((By.XPATH,'/html/body/app-root/app-event-page/hazdev-template/hazdev-template-sidenav/div/div[3]/hazdev-template-page/main/div/event-page-header/header/ul/li[2]'))).text
-    depth = WebDriverWait(driver,5).until(EC.presence_of_element_located((By.XPATH,'/html/body/app-root/app-event-page/hazdev-template/hazdev-template-sidenav/div/div[3]/hazdev-template-page/main/div/event-page-header/header/ul/li[3]'))).text
-    magnitude = WebDriverWait(driver,1000).until(EC.presence_of_element_located((By.XPATH, '/html/body/app-root/app-event-page/hazdev-template/hazdev-template-sidenav/div/div[3]/hazdev-template-page/main/header/h1'))).text
-    # print(magnitude,time,gps_coord,depth)
-    
-    magnitude = re.search("-?[0-9].[0-9]", magnitude).group()
-
-    tweet_dict['magnitude'] = magnitude
-    tweet_dict['time'] = time
-    tweet_dict['coordinates'] = gps_coord
-    tweet_dict['depth'] = depth
-    # print(tweet_dict[id])
-    return tweet_dict

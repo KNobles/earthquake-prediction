@@ -32,7 +32,7 @@ def server_connect(HOST:str, PORT:int) -> socket:
     local_socket.bind((HOST, PORT))
     local_socket.listen(1)
     conn, addr = local_socket.accept()
-    logger.info("Connected by", addr)
+    logger.info("Connected by", {str(addr)})
     return conn
 
 #Body to add into Post request (so this is not "parameter" but "json" part in your Post request)
@@ -97,62 +97,63 @@ def get_tweets(url:str, headers:dict) -> None:
             if line==b'':
                 pass
             else:
-                try:
-                    json_response = json.loads(line)
-                    # logger.info(json_response)
-                    tweet_field = json_response["data"] 
-                    user_field = json_response.get("includes", {}).get("users", [])[0]
-                    try:
-                        place_field = json_response.get("includes", {}).get("places", [{}])[0]
-                        if len(place_field[0]) != 0:
-                            place_country = place_field["country"]
-                            place_city = place_field["name"]
-                            place_type = place_field["place_type"]
-                        
-                            if place_field["geo"]["type"] == "Point":
-                                place_geo = place_field["geo"]["coordinates"]
-                            elif place_field["geo"]["type"] == "Feature":
-                                place_geo = place_field["geo"]["bbox"]
-                    except KeyError as err:
-                        logger.info("No 'places' field")
-                        place_country = None
-                        place_city = None
-                        place_geo = None
-                        place_type = None
-                                            
-                    tweet_id = tweet_field["id"]
-                    tweet_text = tweet_field["text"]
-                    tweet_author_id = tweet_field["author_id"]
-                    tweet_created_at = tweet_field["created_at"]
-                    tweet_lang = tweet_field["lang"]
-                    
-                    if len(user_field) != 0:
-                        user_id = user_field["id"]
-                        user_username = user_field["username"]
+                json_response = json.loads(line)
+                # logger.info(json_response)
+                tweet_field = json_response["data"]
+                user_field = json_response.get("includes", {}).get("users", [])[0]
+                place_field = json_response.get("includes", {}).get("places", [{}])[0]
+                logger.info(place_field)
 
-                    data_to_send = {
-                        "id":tweet_id, 
-                        "tweet_text":tweet_text,
-                        "tweet_author_id":tweet_author_id,
-                        "tweet_created_at":tweet_created_at, 
-                        "tweet_lang":tweet_lang,
-                        "user_id":user_id, 
-                        "user_username":user_username,
-                        "place_country":place_country,
-                        "place_city":place_city,
-                        "place_geo":place_geo,
-                        "place_place_type":place_type
-                    }
-                    
-                    data_to_send_str = str(data_to_send) + "\n"
-                    logger.info(data_to_send_str)
-                    
-                    conn.send(bytes(data_to_send_str,'utf-8'))
+                if place_field:
+                    place_country = place_field["country"]
+                    place_city = place_field["name"]
+                    place_type = place_field["place_type"]
+                    if place_field.get("geo", {}):
+                        if place_field.get("geo").get("type") == "Point":
+                            place_geo = place_field["geo"]["coordinates"]
+                        elif place_field.get("geo").get("type") == "Feature":
+                            place_geo = place_field["geo"]["bbox"]
+                else:
+                    place_country = None
+                    place_city = None
+                    place_type = None
+                    place_geo = None
 
-                except BrokenPipeError as e:
-                    print(e + ", Reconnecting...")
-                    server_connect(HOST, PORT)
-                    get_tweets(url, headers)
+                tweet_id = tweet_field["id"]
+                tweet_text = tweet_field["text"]
+                tweet_author_id = tweet_field["author_id"]
+                tweet_created_at = tweet_field["created_at"]
+                tweet_lang = tweet_field["lang"]
+                
+                if len(user_field) != 0:
+                    user_id = user_field["id"]
+                    user_username = user_field["username"]
+
+                data_to_send = {
+                    "id":tweet_id,
+                    #  "tweet_content":json_response
+                    "tweet_text":tweet_text,
+                    "tweet_author_id":tweet_author_id,
+                    "tweet_created_at":tweet_created_at, 
+                    "tweet_lang":tweet_lang,
+                    "user_id":user_id, 
+                    "user_username":user_username,
+                    "place_country":place_country,
+                    "place_city":place_city,
+                    "place_geo":place_geo,
+                    "place_place_type":place_type,
+                    "ml_processed": False
+                }
+
+                data_to_send_str = str(data_to_send) + "\n"
+                logger.info(data_to_send_str)
+            try:
+                conn.send(bytes(data_to_send_str,'utf-8'))
+
+            except BrokenPipeError as e:
+                print(e + ", Reconnecting...")
+                server_connect(HOST, PORT)
+                get_tweets(url, headers)
 
 conn = server_connect(HOST, PORT)
 headers = request_headers(bearer_token)

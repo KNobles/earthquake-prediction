@@ -3,6 +3,14 @@ services:
   
   myserver:
     image: twitter_server:latest
+    # image: kevineqcontainer.azurecr.io/twitter_server:latest
+    # container_name: kevineqserver
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '1'
+    #       memory: 4G
+
     build:
       context: ./
       dockerfile: server/Dockerfile
@@ -18,6 +26,14 @@ services:
 
   myclient:
     image: twitter_client:latest
+    # image: kevineqcontainer.azurecr.io/twitter_client:latest
+    # container_name: kevineqclient
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '1'
+    #       memory: 4G
+
     build: 
       context: ./
       dockerfile: client/Dockerfile
@@ -28,8 +44,8 @@ services:
     networks:
       - mynetwork
 
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
+    # volumes:
+    #   - /etc/localtime:/etc/localtime:ro
     depends_on:
       - myserver
 
